@@ -21,7 +21,7 @@ The SQL check uses Microsoft ScriptDom, so comments, string literals, batches, s
 ## Project Structure
 
 ```text
-D:\SSMSExtension
+<repo-root>
 |-- QueryArmor.slnx
 |-- QueryArmor
 |   |-- QueryArmor.csproj
@@ -110,35 +110,53 @@ net48
 
 ## Build Locally
 
-Open PowerShell in the repo root:
+Open Command Prompt in the project root folder, then run:
 
-```powershell
-cd D:\SSMSExtension
-dotnet build QueryArmor.slnx
+```cmd
+dotnet restore QueryArmor.slnx
+dotnet build QueryArmor.slnx -c Release
 ```
 
 The VSIX file is created here:
 
 ```text
-D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix
+QueryArmor\bin\Release\net48\QueryArmor.vsix
 ```
 
 ## Run Tests
 
-```powershell
-cd D:\SSMSExtension
-dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj
+Open Command Prompt in the project root folder, then run:
+
+```cmd
+dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj -c Release
 ```
 
-## Install Locally in SSMS 22
+## Install Locally in SSMS
 
-Close SSMS first.
+Close SQL Server Management Studio before installing.
 
-Then run:
+Open Command Prompt in the project root folder, then run:
 
-```powershell
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet "D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix"
+```cmd
+set "VSIX=%CD%\QueryArmor\bin\Release\net48\QueryArmor.vsix"
+
+if not exist "%VSIX%" (
+  dotnet build QueryArmor.slnx -c Release
+)
+
+set "VSIXINSTALLER="
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
+
+if not defined VSIXINSTALLER (
+  echo VSIXInstaller.exe was not found. Install SQL Server Management Studio first.
+  exit /b 1
+)
+
+"%VSIXINSTALLER%" /quiet "%VSIX%"
 ```
+
+For a `.bat` file, use `%%i` instead of `%i` in both `for /f` lines.
 
 The extension is installed under a folder like:
 
@@ -150,12 +168,18 @@ The random folder name is normal. VSIX installer creates it.
 
 ## Check Install Log
 
-To create a log during install:
+To create a log during install, run this from Command Prompt in the project root folder:
 
-```powershell
-$log = Join-Path $env:TEMP "QueryArmor-vsix-install.log"
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet /logFile:$log "D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix"
-notepad $log
+```cmd
+set "VSIX=%CD%\QueryArmor\bin\Release\net48\QueryArmor.vsix"
+set "LOG=%TEMP%\QueryArmor-vsix-install.log"
+
+set "VSIXINSTALLER="
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
+
+"%VSIXINSTALLER%" /quiet /logFile:"%LOG%" "%VSIX%"
+notepad "%LOG%"
 ```
 
 Look for a line like:
@@ -170,8 +194,12 @@ Close SSMS first.
 
 Use the same VSIX installer:
 
-```powershell
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet /uninstall:QueryArmor.SSMS.810f8a7d-a567-40e9-913f-d63cb272f93f
+```cmd
+set "VSIXINSTALLER="
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
+
+"%VSIXINSTALLER%" /quiet /uninstall:QueryArmor.SSMS.810f8a7d-a567-40e9-913f-d63cb272f93f
 ```
 
 If you are reinstalling the same version, running the install command again usually upgrades/replaces the old copy automatically.
@@ -229,21 +257,25 @@ After changing config, restart SSMS.
 1. Change code.
 2. Run tests:
 
-```powershell
-dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj
+```cmd
+dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj -c Release
 ```
 
 3. Build the VSIX:
 
-```powershell
-dotnet build QueryArmor.slnx
+```cmd
+dotnet build QueryArmor.slnx -c Release
 ```
 
 4. Close SSMS.
 5. Install the new VSIX:
 
-```powershell
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet "D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix"
+```cmd
+set "VSIX=%CD%\QueryArmor\bin\Release\net48\QueryArmor.vsix"
+set "VSIXINSTALLER="
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
+for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
+"%VSIXINSTALLER%" /quiet "%VSIX%"
 ```
 
 6. Open SSMS and test with a safe and unsafe query.
