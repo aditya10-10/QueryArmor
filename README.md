@@ -1,6 +1,6 @@
-# QueryGuard for SSMS
+# QueryArmor for SSMS
 
-QueryGuard is a SQL Server Management Studio extension that warns before running risky `UPDATE` or `DELETE` queries.
+QueryArmor is a SQL Server Management Studio extension that warns before running risky `UPDATE` or `DELETE` queries.
 
 It blocks statements like:
 
@@ -22,13 +22,13 @@ The SQL check uses Microsoft ScriptDom, so comments, string literals, batches, s
 
 ```text
 D:\SSMSExtension
-|-- SSMSExtension.slnx
-|-- SSMSExtension
-|   |-- SSMSExtension.csproj
+|-- QueryArmor.slnx
+|-- QueryArmor
+|   |-- QueryArmor.csproj
 |   |-- source.extension.vsixmanifest
-|   |-- QueryGuard.pkgdef
+|   |-- QueryArmor.pkgdef
 |   |-- src
-|       |-- QueryGuardPackage.cs
+|       |-- QueryArmorPackage.cs
 |       |-- CommandInterceptor.cs
 |       |-- Core
 |       |   |-- SqlQueryAnalyzer.cs
@@ -41,51 +41,51 @@ D:\SSMSExtension
 |       |-- UI
 |           |-- BlockingWarningDialog.cs
 |           |-- StatusBarNotifier.cs
-|-- SSMSExtension.Tests
+|-- QueryArmor.Tests
     |-- SqlQueryAnalyzerTests.cs
 ```
 
 ## Important Files
 
-`SSMSExtension/src/QueryGuardPackage.cs`
+`QueryArmor/src/QueryArmorPackage.cs`
 
 Main extension entry point. SSMS loads this package when the extension starts.
 
-`SSMSExtension/src/CommandInterceptor.cs`
+`QueryArmor/src/CommandInterceptor.cs`
 
 Hooks into the SSMS command system. When the user runs a query, this class gets the active SQL text, analyzes it, and blocks or allows execution.
 
-`SSMSExtension/src/Core/SqlQueryAnalyzer.cs`
+`QueryArmor/src/Core/SqlQueryAnalyzer.cs`
 
 Core safety checker. It parses SQL using `Microsoft.SqlServer.TransactSql.ScriptDom` and detects unsafe `UPDATE` or `DELETE` statements without a `WHERE` clause.
 
-`SSMSExtension/src/Core/QueryAutoFixer.cs`
+`QueryArmor/src/Core/QueryAutoFixer.cs`
 
 Suggests simple fixes, such as uncommenting a commented `WHERE` clause or adding a placeholder `WHERE`.
 
-`SSMSExtension/src/Core/AnalysisResult.cs`
+`QueryArmor/src/Core/AnalysisResult.cs`
 
 Shared result model for risks, violations, statement type, table name, and messages.
 
-`SSMSExtension/src/UI/BlockingWarningDialog.cs`
+`QueryArmor/src/UI/BlockingWarningDialog.cs`
 
 Warning dialog shown when a risky query is detected.
 
-`SSMSExtension/src/Config/GuardConfiguration.cs`
+`QueryArmor/src/Config/GuardConfiguration.cs`
 
-Local configuration. On first run, QueryGuard creates:
+Local configuration. On first run, QueryArmor creates:
 
 ```text
-%APPDATA%\QueryGuard\config.json
+%APPDATA%\QueryArmor\config.json
 ```
 
 Default audit log:
 
 ```text
-%APPDATA%\QueryGuard\audit.log
+%APPDATA%\QueryArmor\audit.log
 ```
 
-`SSMSExtension.Tests/SqlQueryAnalyzerTests.cs`
+`QueryArmor.Tests/SqlQueryAnalyzerTests.cs`
 
 Unit tests for safe and unsafe SQL detection.
 
@@ -114,20 +114,20 @@ Open PowerShell in the repo root:
 
 ```powershell
 cd D:\SSMSExtension
-dotnet build SSMSExtension.slnx
+dotnet build QueryArmor.slnx
 ```
 
 The VSIX file is created here:
 
 ```text
-D:\SSMSExtension\SSMSExtension\bin\Debug\net48\SSMSExtension.vsix
+D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix
 ```
 
 ## Run Tests
 
 ```powershell
 cd D:\SSMSExtension
-dotnet test SSMSExtension.Tests\SSMSExtension.Tests.csproj
+dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj
 ```
 
 ## Install Locally in SSMS 22
@@ -137,7 +137,7 @@ Close SSMS first.
 Then run:
 
 ```powershell
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet "D:\SSMSExtension\SSMSExtension\bin\Debug\net48\SSMSExtension.vsix"
+& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet "D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix"
 ```
 
 The extension is installed under a folder like:
@@ -153,8 +153,8 @@ The random folder name is normal. VSIX installer creates it.
 To create a log during install:
 
 ```powershell
-$log = Join-Path $env:TEMP "QueryGuard-vsix-install.log"
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet /logFile:$log "D:\SSMSExtension\SSMSExtension\bin\Debug\net48\SSMSExtension.vsix"
+$log = Join-Path $env:TEMP "QueryArmor-vsix-install.log"
+& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet /logFile:$log "D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix"
 notepad $log
 ```
 
@@ -171,7 +171,7 @@ Close SSMS first.
 Use the same VSIX installer:
 
 ```powershell
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet /uninstall:QueryGuard.SSMS.810f8a7d-a567-40e9-913f-d63cb272f93f
+& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet /uninstall:QueryArmor.SSMS.810f8a7d-a567-40e9-913f-d63cb272f93f
 ```
 
 If you are reinstalling the same version, running the install command again usually upgrades/replaces the old copy automatically.
@@ -186,7 +186,7 @@ Try a risky query:
 DELETE FROM dbo.SomeTable;
 ```
 
-QueryGuard should show a warning before the query executes.
+QueryArmor should show a warning before the query executes.
 
 Then try a filtered query:
 
@@ -198,10 +198,10 @@ That should be allowed.
 
 ## Local Configuration
 
-QueryGuard writes default settings here:
+QueryArmor writes default settings here:
 
 ```text
-%APPDATA%\QueryGuard\config.json
+%APPDATA%\QueryArmor\config.json
 ```
 
 Useful settings:
@@ -230,20 +230,20 @@ After changing config, restart SSMS.
 2. Run tests:
 
 ```powershell
-dotnet test SSMSExtension.Tests\SSMSExtension.Tests.csproj
+dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj
 ```
 
 3. Build the VSIX:
 
 ```powershell
-dotnet build SSMSExtension.slnx
+dotnet build QueryArmor.slnx
 ```
 
 4. Close SSMS.
 5. Install the new VSIX:
 
 ```powershell
-& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet "D:\SSMSExtension\SSMSExtension\bin\Debug\net48\SSMSExtension.vsix"
+& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\VSIXInstaller.exe" /quiet "D:\SSMSExtension\QueryArmor\bin\Debug\net48\QueryArmor.vsix"
 ```
 
 6. Open SSMS and test with a safe and unsafe query.
@@ -263,8 +263,8 @@ If the extension does not appear to work:
 4. Look for these files in the installed extension folder:
 
 ```text
-SSMSExtension.dll
-SSMSExtension.pkgdef
+QueryArmor.dll
+QueryArmor.pkgdef
 Microsoft.SqlServer.TransactSql.ScriptDom.dll
 extension.vsixmanifest
 ```
@@ -272,4 +272,3 @@ extension.vsixmanifest
 5. Restart SSMS.
 
 If the extension still does not load, rebuild and reinstall.
-

@@ -1,0 +1,50 @@
+# Visual Studio user files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+# VSIX and Visual Studio extension generated files
+*.vsix
+*.pkgdef
+*.pkgundef
+*.ctmenu
+*.cto
+*.cache
+*.tlog
+
+# Test results and coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.assets.json
+artifacts/
+
+# .NET local tools and generated files
+.config/dotnet-tools.json
+GeneratedInternalTypeHelper.g.cs
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+~$*
+*.bak
