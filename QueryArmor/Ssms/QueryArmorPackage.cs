@@ -1,16 +1,22 @@
-using Microsoft.VisualStudio.Shell;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Shell;
+using QueryArmor.Application.Auditing;
+using QueryArmor.Application.Fixes;
+using QueryArmor.Application.Inspection;
+using QueryArmor.Domain.Analysis;
+using QueryArmor.Infrastructure.Configuration;
+using QueryArmor.Infrastructure.Logging;
 
-namespace QueryArmor
+namespace QueryArmor.Ssms
 {
     /// <summary>
     /// Async package entry point for the QueryArmor SSMS extension.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("#110", "#112", "1.0")]
+    [InstalledProductRegistration("#110", "#112", "1.1.0")]
     [ProvideAutoLoad(Microsoft.VisualStudio.VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuidString)]
     public sealed class QueryArmorPackage : AsyncPackage
@@ -23,18 +29,21 @@ namespace QueryArmor
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            var config = Config.GuardConfiguration.Load();
-            var logger = new Logging.AuditLogger(config.AuditLogPath, config.CentralAuditPath);
+            var configProvider = new GuardConfigurationProvider();
+            var config = configProvider.Load();
+            var logger = new AuditLogger(config.AuditLogPath, config.CentralAuditPath);
+            var analyzer = new SqlQueryAnalyzer();
+            var fixer = new QueryAutoFixer();
+            var inspectionService = new QueryInspectionService(analyzer, config);
 
             _interceptor = new CommandInterceptor(
-                this,
-                new Core.SqlQueryAnalyzer(),
-                new Core.QueryAutoFixer(),
+                inspectionService,
+                fixer,
                 config,
                 logger);
 
             _interceptor.RegisterCommandHook();
-            _ = logger.LogAsync(Logging.AuditEvent.ExtensionLoaded, "QueryArmor loaded.");
+            _ = logger.LogAsync(AuditEvent.ExtensionLoaded, "QueryArmor loaded.");
         }
 
         protected override void Dispose(bool disposing)

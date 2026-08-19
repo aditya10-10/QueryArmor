@@ -2,6 +2,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 set "EXTENSION_ID=QueryArmor.SSMS.810f8a7d-a567-40e9-913f-d63cb272f93f"
+set "LEGACY_EXTENSION_ID=QueryGuard.SSMS.810f8a7d-a567-40e9-913f-d63cb272f93f"
 set "LOG=%TEMP%\QueryArmor-vsix-uninstall.log"
 
 echo [QueryArmor] Uninstall started
@@ -43,6 +44,9 @@ if not "%UNINSTALL_EXIT%"=="0" (
   echo This can happen if QueryArmor is not installed for this SSMS profile.
   echo CHECK: notepad "%LOG%"
 )
+
+echo Checking legacy QueryGuard extension ID
+"%VSIXINSTALLER%" /quiet /uninstall:%LEGACY_EXTENSION_ID% >nul 2>nul
 
 echo DONE: Uninstall command completed.
 exit /b 0

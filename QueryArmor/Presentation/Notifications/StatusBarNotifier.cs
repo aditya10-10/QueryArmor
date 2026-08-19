@@ -1,7 +1,7 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 
-namespace QueryArmor.UI
+namespace QueryArmor.Presentation.Notifications
 {
     internal static class StatusBarNotifier
     {

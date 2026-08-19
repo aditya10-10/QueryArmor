@@ -1,5 +1,6 @@
- <Solution>
+<Solution>
   <Project Path="QueryArmor/QueryArmor.csproj">
     <Deploy />
   </Project>
+  <Project Path="QueryArmor.Tests/QueryArmor.Tests.csproj" />
 </Solution>
