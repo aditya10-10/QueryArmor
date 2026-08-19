@@ -1,4 +1,4 @@
-using QueryArmor.Core;
+using QueryArmor.Domain.Analysis;
 using System.Linq;
 using Xunit;
 

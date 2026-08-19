@@ -27,51 +27,73 @@ The SQL check uses Microsoft ScriptDom, so comments, string literals, batches, s
 |   |-- QueryArmor.csproj
 |   |-- source.extension.vsixmanifest
 |   |-- QueryArmor.pkgdef
-|   |-- src
+|   |-- Domain
+|   |   |-- Analysis
+|   |       |-- AnalysisResult.cs
+|   |       |-- ISqlQueryAnalyzer.cs
+|   |       |-- SqlQueryAnalyzer.cs
+|   |-- Application
+|   |   |-- Auditing
+|   |   |-- Configuration
+|   |   |-- Fixes
+|   |   |-- Inspection
+|   |-- Infrastructure
+|   |   |-- Configuration
+|   |   |-- Logging
+|   |-- Presentation
+|   |   |-- Dialogs
+|   |   |-- Notifications
+|   |-- Ssms
 |       |-- QueryArmorPackage.cs
 |       |-- CommandInterceptor.cs
-|       |-- Core
-|       |   |-- SqlQueryAnalyzer.cs
-|       |   |-- QueryAutoFixer.cs
-|       |   |-- AnalysisResult.cs
-|       |-- Config
-|       |   |-- GuardConfiguration.cs
-|       |-- Logging
-|       |   |-- AuditLogger.cs
-|       |-- UI
-|           |-- BlockingWarningDialog.cs
-|           |-- StatusBarNotifier.cs
 |-- QueryArmor.Tests
     |-- SqlQueryAnalyzerTests.cs
+    |-- QueryInspectionServiceTests.cs
 ```
+
+## Architecture
+
+QueryArmor uses a layered structure:
+
+- `Domain`: SQL analysis models and parser-based safety checks.
+- `Application`: use cases, policy decisions, configuration contracts, fix contracts, and audit contracts.
+- `Infrastructure`: file-backed configuration and audit log implementations.
+- `Presentation`: Windows Forms dialog and SSMS status notifications.
+- `Ssms`: Visual Studio/SSMS package startup and command interception.
+
+The SSMS host layer depends inward on application services. SQL safety rules and blocking policy can be tested without loading SSMS or Visual Studio APIs.
 
 ## Important Files
 
-`QueryArmor/src/QueryArmorPackage.cs`
+`QueryArmor/Ssms/QueryArmorPackage.cs`
 
 Main extension entry point. SSMS loads this package when the extension starts.
 
-`QueryArmor/src/CommandInterceptor.cs`
+`QueryArmor/Ssms/CommandInterceptor.cs`
 
 Hooks into the SSMS command system. When the user runs a query, this class gets the active SQL text, analyzes it, and blocks or allows execution.
 
-`QueryArmor/src/Core/SqlQueryAnalyzer.cs`
+`QueryArmor/Domain/Analysis/SqlQueryAnalyzer.cs`
 
 Core safety checker. It parses SQL using `Microsoft.SqlServer.TransactSql.ScriptDom` and detects unsafe `UPDATE` or `DELETE` statements without a `WHERE` clause.
 
-`QueryArmor/src/Core/QueryAutoFixer.cs`
+`QueryArmor/Application/Inspection/QueryInspectionService.cs`
+
+Applies configuration policy, exclusions, thresholds, and environment checks to the raw SQL analysis result.
+
+`QueryArmor/Application/Fixes/QueryAutoFixer.cs`
 
 Suggests simple fixes, such as uncommenting a commented `WHERE` clause or adding a placeholder `WHERE`.
 
-`QueryArmor/src/Core/AnalysisResult.cs`
+`QueryArmor/Domain/Analysis/AnalysisResult.cs`
 
 Shared result model for risks, violations, statement type, table name, and messages.
 
-`QueryArmor/src/UI/BlockingWarningDialog.cs`
+`QueryArmor/Presentation/Dialogs/BlockingWarningDialog.cs`
 
 Warning dialog shown when a risky query is detected.
 
-`QueryArmor/src/Config/GuardConfiguration.cs`
+`QueryArmor/Application/Configuration/GuardConfiguration.cs`
 
 Local configuration. On first run, QueryArmor creates:
 

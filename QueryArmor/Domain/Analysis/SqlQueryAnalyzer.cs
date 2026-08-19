@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 
-namespace QueryArmor.Core
+namespace QueryArmor.Domain.Analysis
 {
     /// <summary>
     /// Analyzes SQL queries for unsafe patterns before execution.
     /// Detects UPDATE/DELETE statements lacking proper WHERE clause filtering.
     /// </summary>
-    public class SqlQueryAnalyzer
+    public class SqlQueryAnalyzer : ISqlQueryAnalyzer
     {
         private static readonly Regex TrivialWherePredicate = new Regex(
             @"\bWHERE\s+(?:1\s*=\s*1|'[^']*'\s*=\s*'[^']*'|NULL\s+IS\s+NULL)\b",
