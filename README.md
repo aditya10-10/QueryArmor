@@ -132,7 +132,7 @@ net48
 
 ## Installation
 
-Use [INSTALL.md](INSTALL.md) for laptop-by-laptop installation, diagnostics, expected output, fixes, reinstall, and uninstall steps.
+Use [INSTALL.md](INSTALL.md) for laptop-by-laptop installation, update, diagnostics, expected output, fixes, reinstall, and uninstall steps.
 
 ## Test in SSMS
 

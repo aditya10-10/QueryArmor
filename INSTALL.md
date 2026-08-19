@@ -236,7 +236,56 @@ Expected result:
 QueryArmor allows the query.
 ```
 
-## 7. Uninstall QueryArmor
+## 7. Update Existing QueryArmor
+
+Use this when a laptop already has QueryArmor installed and you want to install the latest local changes.
+
+Close SSMS first, then run:
+
+```cmd
+scripts\update-queryarmor.cmd
+```
+
+Expected output:
+
+```text
+[QueryArmor] Update started
+[1/3] Closing check and uninstalling any existing QueryArmor/QueryGuard installation
+[QueryArmor] Uninstall started
+SSMS is closed.
+DONE: Uninstall command completed.
+[2/3] Installing latest QueryArmor build
+[QueryArmor] Install started
+Build succeeded.
+VSIXInstaller exit code: 0
+SUCCESS: QueryArmor installation command completed.
+[3/3] Update complete
+SUCCESS: QueryArmor is updated to the latest local build.
+```
+
+The update script also attempts to remove the legacy `QueryGuard` extension ID, so laptops that installed the extension before the rename do not keep both extensions.
+
+If update fails because SSMS is running, close SSMS and rerun:
+
+```cmd
+scripts\update-queryarmor.cmd
+```
+
+If update fails during install, open the install log:
+
+```cmd
+notepad "%TEMP%\QueryArmor-vsix-install.log"
+findstr /i "error exception failed already" "%TEMP%\QueryArmor-vsix-install.log"
+```
+
+If update fails during uninstall, open the uninstall log:
+
+```cmd
+notepad "%TEMP%\QueryArmor-vsix-uninstall.log"
+findstr /i "error exception failed not installed" "%TEMP%\QueryArmor-vsix-uninstall.log"
+```
+
+## 8. Uninstall QueryArmor
 
 Close SSMS first, then run:
 
@@ -268,8 +317,7 @@ If the extension was not installed on that laptop/profile, the non-zero uninstal
 Use this when updating an existing laptop:
 
 ```cmd
-scripts\uninstall-queryarmor.cmd
-scripts\install-queryarmor.cmd
+scripts\update-queryarmor.cmd
 ```
 
 ## Manual VSIXInstaller Command

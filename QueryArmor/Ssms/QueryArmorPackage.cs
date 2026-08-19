@@ -16,7 +16,7 @@ namespace QueryArmor.Ssms
     /// Async package entry point for the QueryArmor SSMS extension.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("#110", "#112", "1.0")]
+    [InstalledProductRegistration("#110", "#112", "1.1.0")]
     [ProvideAutoLoad(Microsoft.VisualStudio.VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuidString)]
     public sealed class QueryArmorPackage : AsyncPackage
