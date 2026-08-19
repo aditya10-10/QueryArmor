@@ -96,6 +96,8 @@ For normal use:
 - SQL Server Management Studio 22
 - .NET Framework 4.8
 
+For laptop-by-laptop installation, use the full guide in [INSTALL.md](INSTALL.md). It includes CMD commands, expected output, diagnostics, fixes, install, reinstall, and uninstall steps.
+
 For development:
 
 - Visual Studio 2022 or newer, with extension development tools
@@ -133,30 +135,14 @@ dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj -c Release
 
 ## Install Locally in SSMS
 
-Close SQL Server Management Studio before installing.
+For full laptop-by-laptop commands, expected output, and fixes, use [INSTALL.md](INSTALL.md).
 
 Open Command Prompt in the project root folder, then run:
 
 ```cmd
-set "VSIX=%CD%\QueryArmor\bin\Release\net48\QueryArmor.vsix"
-
-if not exist "%VSIX%" (
-  dotnet build QueryArmor.slnx -c Release
-)
-
-set "VSIXINSTALLER="
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
-
-if not defined VSIXINSTALLER (
-  echo VSIXInstaller.exe was not found. Install SQL Server Management Studio first.
-  exit /b 1
-)
-
-"%VSIXINSTALLER%" /quiet "%VSIX%"
+scripts\diagnose-queryarmor.cmd
+scripts\install-queryarmor.cmd
 ```
-
-For a `.bat` file, use `%%i` instead of `%i` in both `for /f` lines.
 
 The extension is installed under a folder like:
 
@@ -168,38 +154,26 @@ The random folder name is normal. VSIX installer creates it.
 
 ## Check Install Log
 
-To create a log during install, run this from Command Prompt in the project root folder:
-
-```cmd
-set "VSIX=%CD%\QueryArmor\bin\Release\net48\QueryArmor.vsix"
-set "LOG=%TEMP%\QueryArmor-vsix-install.log"
-
-set "VSIXINSTALLER="
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
-
-"%VSIXINSTALLER%" /quiet /logFile:"%LOG%" "%VSIX%"
-notepad "%LOG%"
-```
-
-Look for a line like:
+The install script writes a log here:
 
 ```text
-Install to SQL Server Management Studio 22 completed successfully.
+%TEMP%\QueryArmor-vsix-install.log
+```
+
+Open it with:
+
+```cmd
+notepad "%TEMP%\QueryArmor-vsix-install.log"
 ```
 
 ## Uninstall Locally
 
 Close SSMS first.
 
-Use the same VSIX installer:
+Use the uninstall helper:
 
 ```cmd
-set "VSIXINSTALLER="
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
-
-"%VSIXINSTALLER%" /quiet /uninstall:QueryArmor.SSMS.810f8a7d-a567-40e9-913f-d63cb272f93f
+scripts\uninstall-queryarmor.cmd
 ```
 
 If you are reinstalling the same version, running the install command again usually upgrades/replaces the old copy automatically.
@@ -271,11 +245,7 @@ dotnet build QueryArmor.slnx -c Release
 5. Install the new VSIX:
 
 ```cmd
-set "VSIX=%CD%\QueryArmor\bin\Release\net48\QueryArmor.vsix"
-set "VSIXINSTALLER="
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do set "VSIXINSTALLER=%i"
-for /f "delims=" %i in ('dir /b /s "%ProgramFiles(x86)%\Microsoft SQL Server Management Studio*\VSIXInstaller.exe" 2^>nul') do if not defined VSIXINSTALLER set "VSIXINSTALLER=%i"
-"%VSIXINSTALLER%" /quiet "%VSIX%"
+scripts\install-queryarmor.cmd
 ```
 
 6. Open SSMS and test with a safe and unsafe query.
