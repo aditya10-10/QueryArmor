@@ -1,0 +1,5 @@
+[$RootKey$\Packages\{367c6c07-d4f7-4a85-8485-093a428c3a39}]
+@="QueryGuard for SSMS"
+"InprocServer32"="$WinDir$\\SYSTEM32\\MSCOREE.DLL"
+"Class"="QueryGuard.QueryGuardPackage"
+"CodeBase"="$PackageFolder$\\SSMSExtension.dll"
