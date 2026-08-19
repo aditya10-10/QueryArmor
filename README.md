@@ -96,8 +96,6 @@ For normal use:
 - SQL Server Management Studio 22
 - .NET Framework 4.8
 
-For laptop-by-laptop installation, use the full guide in [INSTALL.md](INSTALL.md). It includes CMD commands, expected output, diagnostics, fixes, install, reinstall, and uninstall steps.
-
 For development:
 
 - Visual Studio 2022 or newer, with extension development tools
@@ -110,73 +108,9 @@ This project targets:
 net48
 ```
 
-## Build Locally
+## Installation
 
-Open Command Prompt in the project root folder, then run:
-
-```cmd
-dotnet restore QueryArmor.slnx
-dotnet build QueryArmor.slnx -c Release
-```
-
-The VSIX file is created here:
-
-```text
-QueryArmor\bin\Release\net48\QueryArmor.vsix
-```
-
-## Run Tests
-
-Open Command Prompt in the project root folder, then run:
-
-```cmd
-dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj -c Release
-```
-
-## Install Locally in SSMS
-
-For full laptop-by-laptop commands, expected output, and fixes, use [INSTALL.md](INSTALL.md).
-
-Open Command Prompt in the project root folder, then run:
-
-```cmd
-scripts\diagnose-queryarmor.cmd
-scripts\install-queryarmor.cmd
-```
-
-The extension is installed under a folder like:
-
-```text
-%LOCALAPPDATA%\Microsoft\SSMS\22.0_d5c13cd0\Extensions\<random-folder>\
-```
-
-The random folder name is normal. VSIX installer creates it.
-
-## Check Install Log
-
-The install script writes a log here:
-
-```text
-%TEMP%\QueryArmor-vsix-install.log
-```
-
-Open it with:
-
-```cmd
-notepad "%TEMP%\QueryArmor-vsix-install.log"
-```
-
-## Uninstall Locally
-
-Close SSMS first.
-
-Use the uninstall helper:
-
-```cmd
-scripts\uninstall-queryarmor.cmd
-```
-
-If you are reinstalling the same version, running the install command again usually upgrades/replaces the old copy automatically.
+Use [INSTALL.md](INSTALL.md) for laptop-by-laptop installation, diagnostics, expected output, fixes, reinstall, and uninstall steps.
 
 ## Test in SSMS
 
@@ -225,52 +159,3 @@ Useful settings:
 ```
 
 After changing config, restart SSMS.
-
-## Common Developer Workflow
-
-1. Change code.
-2. Run tests:
-
-```cmd
-dotnet test QueryArmor.Tests\QueryArmor.Tests.csproj -c Release
-```
-
-3. Build the VSIX:
-
-```cmd
-dotnet build QueryArmor.slnx -c Release
-```
-
-4. Close SSMS.
-5. Install the new VSIX:
-
-```cmd
-scripts\install-queryarmor.cmd
-```
-
-6. Open SSMS and test with a safe and unsafe query.
-
-## Troubleshooting
-
-If the extension does not appear to work:
-
-1. Make sure SSMS was fully closed before installing.
-2. Check the install log.
-3. Confirm files exist under:
-
-```text
-%LOCALAPPDATA%\Microsoft\SSMS\22.0_d5c13cd0\Extensions\
-```
-
-4. Look for these files in the installed extension folder:
-
-```text
-QueryArmor.dll
-QueryArmor.pkgdef
-Microsoft.SqlServer.TransactSql.ScriptDom.dll
-extension.vsixmanifest
-```
-
-5. Restart SSMS.
-
-If the extension still does not load, rebuild and reinstall.
